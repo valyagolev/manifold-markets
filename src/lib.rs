@@ -1,9 +1,12 @@
 mod client;
+pub mod types;
 
 pub use client::{ManifoldAuthorization, ManifoldClient};
 
 #[cfg(test)]
 mod tests {
+    use crate::types::User;
+
     use super::*;
 
     #[tokio::test]
@@ -18,10 +21,12 @@ mod tests {
             .http_get("/user/ValentinGolev")
             .send()
             .await?
-            .json::<serde_json::Value>()
+            .json::<User>()
             .await?;
 
         println!("{:#?}", r);
+        println!("{:#?}", r.balance());
+        println!("{:#?}", r.profit_cached());
 
         Ok(())
     }
