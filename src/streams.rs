@@ -24,7 +24,6 @@ impl ManifoldClient {
             let path = path.clone();
 
             async move {
-                println!("before: {:?}", before);
                 let params = match before {
                     Some(before) => {
                         let mut params = params.clone();
@@ -60,7 +59,11 @@ impl ManifoldClient {
         .try_flatten()
     }
 
-    pub fn stream_markets(&self) -> impl Stream<Item = Result<Market>> + '_ {
+    pub fn stream_markets(&self) -> impl Stream<Item = Result<LiteMarket>> + '_ {
         self.stream_paginated("/markets".to_owned(), vec![])
+    }
+
+    pub fn stream_users(&self) -> impl Stream<Item = Result<User>> + '_ {
+        self.stream_paginated("/users".to_owned(), vec![])
     }
 }
