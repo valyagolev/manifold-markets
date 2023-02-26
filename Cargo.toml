@@ -17,4 +17,5 @@ serde = { version = "1.0.152", features = ["serde_derive"] }
 [dev-dependencies]
     anyhow = "1.0.69"
 dotenv = "0.15.0"
+rand = "0.8.5"
     tokio  = { version = "1.25.0", features = ["full"] }

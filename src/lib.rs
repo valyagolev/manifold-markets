@@ -9,6 +9,7 @@ pub use client::{ManifoldAuthorization, ManifoldClient};
 #[cfg(test)]
 mod tests {
     use futures_util::{StreamExt, TryStreamExt};
+    use rand::seq::SliceRandom;
 
     use crate::types::Market;
 
@@ -30,7 +31,9 @@ mod tests {
 
         println!("{:#?}", r[509]);
 
-        let r = r.iter().filter(|m| m.is_active()).collect::<Vec<_>>();
+        let mut r = r.iter().filter(|m| m.is_active()).collect::<Vec<_>>();
+
+        r.shuffle(&mut rand::thread_rng());
 
         {
             println!("testing yes/no");
@@ -78,6 +81,56 @@ mod tests {
 
             let bet = manifold
                 .post_bet(1, free_response.id(), winning.0.clone(), None)
+                .await?;
+
+            println!("bet: {:#?}", bet);
+        }
+        {
+            println!("now for a MultipleChoice");
+
+            let multiple_choice = r
+                .iter()
+                .filter(|m| m.outcome_type() == types::OutcomeType::MultipleChoice)
+                .next()
+                .unwrap();
+
+            println!("will bet on {:#?}", multiple_choice);
+
+            let pool = multiple_choice.pool();
+            let winning = pool
+                .iter()
+                .max_by(|a, b| a.1.partial_cmp(&b.1).unwrap())
+                .unwrap();
+
+            println!("will bet on {:#?}", winning);
+
+            let bet = manifold
+                .post_bet(1, multiple_choice.id(), winning.0.clone(), None)
+                .await?;
+
+            println!("bet: {:#?}", bet);
+        }
+        {
+            println!("now for a PseudoNumeric");
+
+            let pseudo_numeric = r
+                .iter()
+                .filter(|m| m.outcome_type() == types::OutcomeType::PseudoNumeric)
+                .next()
+                .unwrap();
+
+            println!("will bet on {:#?}", pseudo_numeric);
+
+            let pool = pseudo_numeric.pool();
+            let winning = pool
+                .iter()
+                .max_by(|a, b| a.1.partial_cmp(&b.1).unwrap())
+                .unwrap();
+
+            println!("will bet on {:#?}", winning);
+
+            let bet = manifold
+                .post_bet(1, pseudo_numeric.id(), winning.0.clone(), None)
                 .await?;
 
             println!("bet: {:#?}", bet);

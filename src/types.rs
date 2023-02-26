@@ -145,9 +145,17 @@ pub trait Market {
                 .into_iter()
                 .map(|(k, v)| (Outcome::FreeResponse(k), v))
                 .collect(),
-            OutcomeType::PseudoNumeric => {
-                todo!("OutcomeType::PseudoNumeric is not implemented yet")
-            }
+            OutcomeType::PseudoNumeric => val
+                .into_iter()
+                .map(|(k, v)| {
+                    let outcome = match k.as_str() {
+                        "YES" => Outcome::Yes,
+                        "NO" => Outcome::No,
+                        _ => panic!("OutcomeType::PseudoNumeric has an invalid outcome"),
+                    };
+                    (outcome, v)
+                })
+                .collect(),
         }
     }
 
