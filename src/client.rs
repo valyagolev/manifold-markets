@@ -81,6 +81,7 @@ impl ManifoldClient {
             .http_get(&format!("/user/{}", username))
             .send()
             .await?
+            .error_for_status()?
             .json()
             .await?)
     }
@@ -93,6 +94,7 @@ impl ManifoldClient {
             .http_get(&format!("/user/by-id/{}", id))
             .send()
             .await?
+            .error_for_status()?
             .json()
             .await?)
     }
@@ -100,7 +102,13 @@ impl ManifoldClient {
     /// GET /v0/me
     /// Gets the currently authenticated user.
     pub async fn get_me(&self) -> Result<User> {
-        Ok(self.http_get("/me").send().await?.json().await?)
+        Ok(self
+            .http_get("/me")
+            .send()
+            .await?
+            .error_for_status()?
+            .json()
+            .await?)
     }
 
     /// GET /v0/groups
@@ -118,7 +126,7 @@ impl ManifoldClient {
             req = req.query(&[("availableToUserId", id)]);
         }
 
-        Ok(req.send().await?.json().await?)
+        Ok(req.send().await?.error_for_status()?.json().await?)
     }
 
     /// GET /v0/group/[slug]
@@ -129,6 +137,7 @@ impl ManifoldClient {
             .http_get(&format!("/group/{}", slug))
             .send()
             .await?
+            .error_for_status()?
             .json()
             .await?)
     }
@@ -141,6 +150,7 @@ impl ManifoldClient {
             .http_get(&format!("/group/by-id/{}", id))
             .send()
             .await?
+            .error_for_status()?
             .json()
             .await?)
     }
@@ -153,6 +163,7 @@ impl ManifoldClient {
             .http_get(&format!("/group/by-id/{}/markets", id))
             .send()
             .await?
+            .error_for_status()?
             .json()
             .await?)
     }
@@ -181,7 +192,7 @@ impl ManifoldClient {
             req = req.query(&[("before", before)]);
         }
 
-        Ok(req.send().await?.json().await?)
+        Ok(req.send().await?.error_for_status()?.json().await?)
     }
 
     /// GET /v0/market/[marketId]
@@ -193,6 +204,7 @@ impl ManifoldClient {
             .http_get(&format!("/market/{}", market_id))
             .send()
             .await?
+            .error_for_status()?
             .json()
             .await?)
     }
@@ -206,6 +218,7 @@ impl ManifoldClient {
             .http_get(&format!("/slug/{}", market_slug))
             .send()
             .await?
+            .error_for_status()?
             .json()
             .await?)
     }
@@ -225,7 +238,12 @@ impl ManifoldClient {
             query.push(("before", before.to_string()));
         }
 
-        let response = self.http_get("/users").query(&query).send().await?;
+        let response = self
+            .http_get("/users")
+            .query(&query)
+            .send()
+            .await?
+            .error_for_status()?;
         Ok(response.json().await?)
     }
 
@@ -274,7 +292,12 @@ impl ManifoldClient {
             }
         }
 
-        let response = self.http_post("/bet").json(&body).send().await?;
+        let response = self
+            .http_post("/bet")
+            .json(&body)
+            .send()
+            .await?
+            .error_for_status()?;
         Ok(response.json().await?)
     }
 
@@ -284,7 +307,8 @@ impl ManifoldClient {
         let response = self
             .http_post(&format!("/bet/{}/cancel", bet_id))
             .send()
-            .await?;
+            .await?
+            .error_for_status()?;
         Ok(response.json().await?)
     }
 
@@ -312,7 +336,12 @@ impl ManifoldClient {
     ///
     /// answers: An array of strings, each of which will be a valid answer for the market.
     pub async fn post_market(&self, value: &Value) -> Result<FullMarket> {
-        let response = self.http_post("/market").json(&value).send().await?;
+        let response = self
+            .http_post("/market")
+            .json(&value)
+            .send()
+            .await?
+            .error_for_status()?;
         Ok(response.json().await?)
     }
 
@@ -324,7 +353,8 @@ impl ManifoldClient {
             .http_post(&format!("/market/{}/add-liquidity", market_id))
             .json(&json!({ "amount": amount }))
             .send()
-            .await?;
+            .await?
+            .error_for_status()?;
         Ok(response.json().await?)
     }
 
@@ -347,7 +377,8 @@ impl ManifoldClient {
             .http_post(&format!("/market/{}/close", market_id))
             .json(&body)
             .send()
-            .await?;
+            .await?
+            .error_for_status()?;
         Ok(response.json().await?)
     }
 
@@ -375,7 +406,8 @@ impl ManifoldClient {
             .http_post(&format!("/market/{}/resolve", market_id))
             .json(&value)
             .send()
-            .await?;
+            .await?
+            .error_for_status()?;
         Ok(response.json().await?)
     }
 
@@ -410,7 +442,8 @@ impl ManifoldClient {
             .http_post(&format!("/market/{}/sell", market_id))
             .json(&body)
             .send()
-            .await?;
+            .await?
+            .error_for_status()?;
         Ok(response.json().await?)
     }
 
@@ -422,7 +455,12 @@ impl ManifoldClient {
     /// html: The comment to post, formatted as an HTML string, OR
     /// markdown: The comment to post, formatted as a markdown string.
     pub async fn post_comment(&self, value: &Value) -> Result<Value> {
-        let response = self.http_post("/comment").json(&value).send().await?;
+        let response = self
+            .http_post("/comment")
+            .json(&value)
+            .send()
+            .await?
+            .error_for_status()?;
         Ok(response.json().await?)
     }
 
@@ -444,7 +482,7 @@ impl ManifoldClient {
             url.push_str(&format!("?contractSlug={}", contract_slug));
         }
 
-        let response = self.http_get(&url).send().await?;
+        let response = self.http_get(&url).send().await?.error_for_status()?;
         Ok(response.json().await?)
     }
 
@@ -495,7 +533,12 @@ impl ManifoldClient {
             query.push(("before", before));
         }
 
-        let response = self.http_get("/bets").query(&query).send().await?;
+        let response = self
+            .http_get("/bets")
+            .query(&query)
+            .send()
+            .await?
+            .error_for_status()?;
         Ok(response.json().await?)
     }
 }

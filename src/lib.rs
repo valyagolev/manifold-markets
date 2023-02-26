@@ -136,6 +136,17 @@ mod tests {
             println!("bet: {:#?}", bet);
         }
 
+        let me = manifold.get_me().await?;
+
+        println!("me: {:#?}", me);
+
+        println!("test streaming my bets...");
+        let bets = manifold.stream_bets(Some(me.id()), None, None, None);
+
+        let bets = bets.take(10).try_collect::<Vec<_>>().await?;
+
+        println!("bet: {:#?}", bets[0]);
+
         Ok(())
     }
 }

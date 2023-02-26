@@ -6,7 +6,7 @@ use std::{
 
 use futures_util::{stream, Stream, StreamExt, TryStreamExt};
 
-use crate::error::Result;
+use crate::error::{ManifoldError, Result};
 use reqwest::Error;
 use serde::de::DeserializeOwned;
 use serde_json::Value;
@@ -38,18 +38,34 @@ impl ManifoldClient {
                     .query(&params)
                     .send()
                     .await?
-                    .json::<Vec<Value>>()
+                    .error_for_status()?
+                    .json::<Value>()
                     .await?;
+
+                let result = result.as_array().ok_or_else(|| {
+                    ManifoldError::SchemaError(
+                        "Streaming response returned not an array?".to_owned(),
+                        Some(result.clone()),
+                    )
+                })?;
 
                 let Some(last) = result.last() else {
                 return Result::Ok(None)
             };
 
-                let last_id = last["id"].as_str().expect("is not id").to_owned(); // todo: use a real error
+                let last_id = last["id"]
+                    .as_str()
+                    .ok_or_else(|| {
+                        ManifoldError::SchemaError(
+                            "Not a string id?".to_owned(),
+                            Some(last["id"].clone()),
+                        )
+                    })?
+                    .to_owned();
 
                 let result = result
                     .into_iter()
-                    .map(|v| serde_json::from_value(v))
+                    .map(|v| serde_json::from_value(v.clone()))
                     .try_collect::<Vec<T>>()?;
 
                 Ok(Some((result, Some(last_id))))
@@ -65,5 +81,33 @@ impl ManifoldClient {
 
     pub fn stream_users(&self) -> impl Stream<Item = Result<User>> + '_ {
         self.stream_paginated("/users".to_owned(), vec![])
+    }
+
+    pub fn stream_bets(
+        &self,
+        user_id: Option<&str>,
+        username: Option<&str>,
+        contract_id: Option<&str>,
+        contract_slug: Option<&str>,
+    ) -> impl Stream<Item = Result<Bet>> + '_ {
+        let mut params = vec![];
+
+        if let Some(user_id) = user_id {
+            params.push(("userId".to_owned(), user_id.to_owned()));
+        }
+
+        if let Some(username) = username {
+            params.push(("username".to_owned(), username.to_owned()));
+        }
+
+        if let Some(contract_id) = contract_id {
+            params.push(("contractId".to_owned(), contract_id.to_owned()));
+        }
+
+        if let Some(contract_slug) = contract_slug {
+            params.push(("contractSlug".to_owned(), contract_slug.to_owned()));
+        }
+
+        self.stream_paginated("/bets".to_owned(), params)
     }
 }
