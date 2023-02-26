@@ -1,8 +1,7 @@
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION};
 
+use crate::error::Result;
 use crate::types::*;
-
-use reqwest::Result;
 
 const DEFAULT_BASE: &str = "https://manifold.markets/api/v0";
 
@@ -77,28 +76,30 @@ impl ManifoldClient {
     /// Gets a user by their username. Remember that usernames may change.
     /// Requires no authorization.
     pub async fn get_user(&self, username: &str) -> Result<User> {
-        self.http_get(&format!("/user/{}", username))
+        Ok(self
+            .http_get(&format!("/user/{}", username))
             .send()
             .await?
             .json()
-            .await
+            .await?)
     }
 
     /// GET /v0/user/by-id/[id]
     /// Gets a user by their unique ID. Many other API endpoints return this as the userId.
     /// Requires no authorization.
     pub async fn get_user_by_id(&self, id: &str) -> Result<User> {
-        self.http_get(&format!("/user/by-id/{}", id))
+        Ok(self
+            .http_get(&format!("/user/by-id/{}", id))
             .send()
             .await?
             .json()
-            .await
+            .await?)
     }
 
     /// GET /v0/me
     /// Gets the currently authenticated user.
     pub async fn get_me(&self) -> Result<User> {
-        self.http_get("/me").send().await?.json().await
+        Ok(self.http_get("/me").send().await?.json().await?)
     }
 
     /// GET /v0/groups
@@ -116,40 +117,43 @@ impl ManifoldClient {
             req = req.query(&[("availableToUserId", id)]);
         }
 
-        req.send().await?.json().await
+        Ok(req.send().await?.json().await?)
     }
 
     /// GET /v0/group/[slug]
     /// Gets a group by its slug.
     /// Requires no authorization. Note: group is singular in the URL.
     pub async fn get_group(&self, slug: &str) -> Result<Group> {
-        self.http_get(&format!("/group/{}", slug))
+        Ok(self
+            .http_get(&format!("/group/{}", slug))
             .send()
             .await?
             .json()
-            .await
+            .await?)
     }
 
     /// GET /v0/group/by-id/[id]
     /// Gets a group by its unique ID.
     /// Requires no authorization. Note: group is singular in the URL.
     pub async fn get_group_by_id(&self, id: &str) -> Result<Group> {
-        self.http_get(&format!("/group/by-id/{}", id))
+        Ok(self
+            .http_get(&format!("/group/by-id/{}", id))
             .send()
             .await?
             .json()
-            .await
+            .await?)
     }
 
     /// GET /v0/group/by-id/[id]/markets
     /// Gets a group's markets by its unique ID.
     /// Requires no authorization. Note: group is singular in the URL.
     pub async fn get_group_markets(&self, id: &str) -> Result<Vec<Market>> {
-        self.http_get(&format!("/group/by-id/{}/markets", id))
+        Ok(self
+            .http_get(&format!("/group/by-id/{}/markets", id))
             .send()
             .await?
             .json()
-            .await
+            .await?)
     }
 
     /// GET /v0/markets
@@ -176,6 +180,6 @@ impl ManifoldClient {
             req = req.query(&[("before", before)]);
         }
 
-        req.send().await?.json().await
+        Ok(req.send().await?.json().await?)
     }
 }
