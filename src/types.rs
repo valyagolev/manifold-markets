@@ -3,7 +3,8 @@
 //! Since we expect Manifold API to evolve pretty quickly,
 //! instead of hard-coding the schema types, we use wrappers
 //! around `serde_json::Value` and provide accessors for
-//! the usual fields. (This should change in the future.)
+//! the usual fields; it'd be better for now than hard-coding a schema
+//! and missing out on the new fields. (We'll change this in the future)
 //!
 //! Those acessors have "expects" in them to avoid Options/Results
 //! everywhere – for the *required* fields that we absolutely expect
@@ -66,3 +67,15 @@ pub struct ProfitCached {
     monthly: f64,
     weekly: f64,
 }
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(transparent)]
+pub struct Group(pub Value);
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(transparent)]
+pub struct Market(pub Value);
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(transparent)]
+pub struct LiteMarket(pub Value);

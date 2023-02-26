@@ -1,12 +1,13 @@
-mod client;
-pub mod types;
+#![feature(iterator_try_collect)]
 
+mod client;
+pub mod error;
+pub mod streams;
+pub mod types;
 pub use client::{ManifoldAuthorization, ManifoldClient};
 
 #[cfg(test)]
 mod tests {
-    use crate::types::User;
-
     use super::*;
 
     #[tokio::test]
@@ -17,16 +18,9 @@ mod tests {
             "The test requires a MANIFOLD_API_KEY environment variable (you can use .env)",
         ))?;
 
-        let r = manifold
-            .http_get("/user/ValentinGolev")
-            .send()
-            .await?
-            .json::<User>()
-            .await?;
+        let r = manifold.get_groups(None).await?;
 
-        println!("{:#?}", r);
-        println!("{:#?}", r.balance());
-        println!("{:#?}", r.profit_cached());
+        println!("{:#?}", r[0]);
 
         Ok(())
     }
