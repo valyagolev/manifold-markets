@@ -8,6 +8,8 @@ pub use client::{ManifoldAuthorization, ManifoldClient};
 
 #[cfg(test)]
 mod tests {
+    use futures_util::{StreamExt, TryStreamExt};
+
     use super::*;
 
     #[tokio::test]
@@ -18,9 +20,13 @@ mod tests {
             "The test requires a MANIFOLD_API_KEY environment variable (you can use .env)",
         ))?;
 
-        let r = manifold.get_groups(None).await?;
+        let r = manifold
+            .stream_markets()
+            .take(510)
+            .try_collect::<Vec<_>>()
+            .await?;
 
-        println!("{:#?}", r[0]);
+        println!("{:#?}", r[509]);
 
         Ok(())
     }

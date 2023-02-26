@@ -24,6 +24,7 @@ impl ManifoldClient {
             let path = path.clone();
 
             async move {
+                println!("before: {:?}", before);
                 let params = match before {
                     Some(before) => {
                         let mut params = params.clone();
