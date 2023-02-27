@@ -73,7 +73,8 @@ impl ManifoldClient {
         self.http.post(&format!("{}{}", self.base, path))
     }
 
-    /// GET /v0/user/[username]
+    /// `GET /v0/user/[username]`
+    ///
     /// Gets a user by their username. Remember that usernames may change.
     /// Requires no authorization.
     pub async fn get_user(&self, username: &str) -> Result<User> {
@@ -86,8 +87,10 @@ impl ManifoldClient {
             .await?)
     }
 
-    /// GET /v0/user/by-id/[id]
+    /// `GET /v0/user/by-id/[id]`
+    ///
     /// Gets a user by their unique ID. Many other API endpoints return this as the userId.
+    ///
     /// Requires no authorization.
     pub async fn get_user_by_id(&self, id: &str) -> Result<User> {
         Ok(self
@@ -99,7 +102,8 @@ impl ManifoldClient {
             .await?)
     }
 
-    /// GET /v0/me
+    /// `GET /v0/me`
+    ///
     /// Gets the currently authenticated user.
     pub async fn get_me(&self) -> Result<User> {
         Ok(self
@@ -111,12 +115,13 @@ impl ManifoldClient {
             .await?)
     }
 
-    /// GET /v0/groups
+    /// `GET /v0/groups`
+    ///
     /// Gets all groups, in no particular order.
     ///
     /// Parameters:
     ///
-    /// availableToUserId: Optional. if specified, only groups that the user can join and groups they've already joined will be returned.
+    /// * `availableToUserId`: Optional. if specified, only groups that the user can join and groups they've already joined will be returned.
     ///
     /// Requires no authorization.
     pub async fn get_groups(&self, available_to_user_id: Option<&str>) -> Result<Vec<Group>> {
@@ -129,8 +134,10 @@ impl ManifoldClient {
         Ok(req.send().await?.error_for_status()?.json().await?)
     }
 
-    /// GET /v0/group/[slug]
+    /// `GET /v0/group/[slug]`
+    ///
     /// Gets a group by its slug.
+    ///
     /// Requires no authorization. Note: group is singular in the URL.
     pub async fn get_group(&self, slug: &str) -> Result<Group> {
         Ok(self
@@ -142,8 +149,10 @@ impl ManifoldClient {
             .await?)
     }
 
-    /// GET /v0/group/by-id/[id]
+    /// `GET /v0/group/by-id/[id]`
+    ///
     /// Gets a group by its unique ID.
+    ///
     /// Requires no authorization. Note: group is singular in the URL.
     pub async fn get_group_by_id(&self, id: &str) -> Result<Group> {
         Ok(self
@@ -155,8 +164,10 @@ impl ManifoldClient {
             .await?)
     }
 
-    /// GET /v0/group/by-id/[id]/markets
+    /// `GET /v0/group/by-id/[id]/markets`
+    ///
     /// Gets a group's markets by its unique ID.
+    ///
     /// Requires no authorization. Note: group is singular in the URL.
     pub async fn get_group_markets(&self, id: &str) -> Result<Vec<LiteMarket>> {
         Ok(self
@@ -168,13 +179,14 @@ impl ManifoldClient {
             .await?)
     }
 
-    /// GET /v0/markets
+    /// `GET /v0/markets`
+    ///
     /// Lists all markets, ordered by creation date descending.
     ///
     /// Parameters:
     ///
-    /// limit: Optional. How many markets to return. The maximum is 1000 and the default is 500.
-    /// before: Optional. The ID of the market before which the list will start. For example, if you ask for the most recent 10 markets, and then perform a second query for 10 more markets with before=[the id of the 10th market], you will get markets 11 through 20.
+    /// - `limit`: Optional. How many markets to return. The maximum is 1000 and the default is 500.
+    /// - `before`: Optional. The ID of the market before which the list will start. For example, if you ask for the most recent 10 markets, and then perform a second query for 10 more markets with before=[the id of the 10th market], you will get markets 11 through 20.
     ///
     /// Requires no authorization.
     pub async fn get_markets(
@@ -195,7 +207,8 @@ impl ManifoldClient {
         Ok(req.send().await?.error_for_status()?.json().await?)
     }
 
-    /// GET /v0/market/[marketId]
+    /// `GET /v0/market/[marketId]`
+    ///
     /// Gets information about a single market by ID. Includes answers, but not bets and comments. Use /bets or /comments with a market ID to retrieve bets or comments.
 
     /// Requires no authorization.
@@ -209,7 +222,8 @@ impl ManifoldClient {
             .await?)
     }
 
-    /// GET /v0/slug/[marketSlug]
+    /// `GET /v0/slug/[marketSlug]`
+    ///
     /// Gets information about a single market by slug (the portion of the URL path after the username).
     ///
     /// Requires no authorization.
@@ -223,11 +237,15 @@ impl ManifoldClient {
             .await?)
     }
 
-    /// GET /v0/users
+    /// `GET /v0/users`
+    ///
     /// Gets a list of users, ordered by creation date descending.
+    ///
     /// Parameters:
-    ///  limit: Optional. How many users to return. The maximum and the default are 1000.
-    /// before: Optional. The ID of the user before which the list will start. For example, if you ask for the most recent 10 users, and then perform a second query for 10 more users with before=[the id of the 10th user], you will get users 11 through 20.
+    ///
+    /// - `limit`: Optional. How many users to return. The maximum and the default are 1000.
+    /// - `before`: Optional. The ID of the user before which the list will start. For example, if you ask for the most recent 10 users, and then perform a second query for 10 more users with before=[the id of the 10th user], you will get users 11 through 20.
+    ///
     /// Requires no authorization.
     pub async fn get_users(&self, limit: Option<u32>, before: Option<u32>) -> Result<Vec<User>> {
         let mut query = vec![];
@@ -247,14 +265,19 @@ impl ManifoldClient {
         Ok(response.json().await?)
     }
 
-    /// POST /v0/bet
+    /// `POST /v0/bet`
+    ///
     /// Creates a new bet on behalf of the authorized user.
+    ///
     /// Parameters:
-    /// amount: Required. The amount to bet, in mana, before fees.
-    /// contractId: Required. The ID of the contract to bet on.
-    /// outcome: Required. The outcome to bet on. For binary markets, this is YES or NO. For free response markets, this is the ID of the free response answer. For numeric markets, this is a string representing the target bucket, and an additional value parameter is required which is a number representing the target value. (Bet on numeric markets at your own peril.)
-    /// limitProb: Optional. A number between 0.001 and 0.999 inclusive representing the limit probability for your bet (i.e. 0.1% to 99.9% — multiply by 100 for the probability percentage). The bet will execute immediately in the direction of outcome, but not beyond this specified limit. If not all the bet is filled, the bet will remain as an open offer that can later be matched against an opposite direction bet.
+    ///
+    /// - `amount`: Required. The amount to bet, in mana, before fees.
+    /// - `contractId`: Required. The ID of the contract to bet on.
+    /// - `outcome`: Required. The outcome to bet on. For binary markets, this is YES or NO. For free response markets, this is the ID of the free response answer. For numeric markets, this is a string representing the target bucket, and an additional value parameter is required which is a number representing the target value. (Bet on numeric markets at your own peril.)
+    /// - `limitProb`: Optional. A number between 0.001 and 0.999 inclusive representing the limit probability for your bet (i.e. 0.1% to 99.9% — multiply by 100 for the probability percentage). The bet will execute immediately in the direction of outcome, but not beyond this specified limit. If not all the bet is filled, the bet will remain as an open offer that can later be matched against an opposite direction bet.
+    ///
     /// For example, if the current market probability is 50%:
+    ///
     /// A M$10 bet on YES with limitProb=0.4 would not be filled until the market probability moves down to 40% and someone bets M$15 of NO to match your bet odds.
     /// A M$100 bet on YES with limitProb=0.6 would fill partially or completely depending on current unfilled limit bets and the AMM's liquidity. Any remaining portion of the bet not filled would remain to be matched against in the future.
     /// An unfilled limit order bet can be cancelled using the cancel API.
@@ -301,7 +324,8 @@ impl ManifoldClient {
         Ok(response.json().await?)
     }
 
-    /// POST /v0/bet/[betId]/cancel
+    /// `POST /v0/bet/[betId]/cancel`
+    ///
     /// Cancel the limit order of a bet with the specified id. If the bet was unfilled, it will be cancelled so that no other bets will match with it. This action is irreversible.
     pub async fn post_bet_cancel(&self, bet_id: &str) -> Result<Value> {
         let response = self
@@ -312,8 +336,10 @@ impl ManifoldClient {
         Ok(response.json().await?)
     }
 
-    /// POST /v0/market
+    /// `POST /v0/market`
+    ///
     /// Creates a new market on behalf of the authorized user.
+    ///
     /// Note: this costs mana.
     /// Parameters:
     /// outcomeType: Required. One of BINARY, FREE_RESPONSE, MULTIPLE_CHOICE, or PSEUDO_NUMERIC.
@@ -345,8 +371,10 @@ impl ManifoldClient {
         Ok(response.json().await?)
     }
 
-    /// POST /v0/market/[marketId]/add-liquidity
+    /// `POST /v0/market/[marketId]/add-liquidity`
+    ///
     /// Adds a specified amount of liquidity into the market.
+    ///
     /// amount: Required. The amount of liquidity to add, in M$.
     pub async fn post_market_add_liquidity(&self, market_id: &str, amount: u64) -> Result<Value> {
         let response = self
@@ -358,8 +386,10 @@ impl ManifoldClient {
         Ok(response.json().await?)
     }
 
-    /// POST /v0/market/[marketId]/close
+    /// `POST /v0/market/[marketId]/close`
+    ///
     /// Closes a market on behalf of the authorized user.
+    ///
     /// closeTime: Optional. Milliseconds since the epoch to close the market at. If not provided, the market will be closed immediately. Cannot provide close time in the past.
     pub async fn post_market_close(
         &self,
@@ -382,7 +412,8 @@ impl ManifoldClient {
         Ok(response.json().await?)
     }
 
-    /// POST /v0/market/[marketId]/resolve
+    /// `POST /v0/market/[marketId]/resolve`
+    ///
     /// Resolves a market on behalf of the authorized user.
     /// Parameters:
     ///
@@ -411,7 +442,8 @@ impl ManifoldClient {
         Ok(response.json().await?)
     }
 
-    /// POST /v0/market/[marketId]/sell
+    /// `POST /v0/market/[marketId]/sell`
+    ///
     /// Sells some quantity of shares in a binary market on behalf of the authorized user.
     ///
     /// Parameters:
@@ -447,8 +479,10 @@ impl ManifoldClient {
         Ok(response.json().await?)
     }
 
-    /// POST /v0/comment
+    /// `POST /v0/comment`
+    ///
     /// Creates a comment in the specified market. Only supports top-level comments for now.
+    ///
     /// Parameters:
     /// contractId: Required. The ID of the market to comment on.
     /// content: The comment to post, formatted as TipTap json, OR
@@ -464,7 +498,7 @@ impl ManifoldClient {
         Ok(response.json().await?)
     }
 
-    /// GET /v0/comments
+    /// `GET /v0/comments`
     /// Gets a list of comments for a contract, ordered by creation date descending.
     /// Parameters:
     /// contractId: Optional. Which contract to read comments for. Either an ID or slug must be specified.
@@ -486,8 +520,10 @@ impl ManifoldClient {
         Ok(response.json().await?)
     }
 
-    /// GET /v0/bets
+    /// `GET /v0/bets`
+    ///
     /// Gets a list of bets, ordered by creation date descending.
+    ///
     /// Parameters:
     /// userId: Optional. If set, the response will include only bets created by this user.
     /// username: Optional. If set, the response will include only bets created by this user.

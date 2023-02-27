@@ -1,3 +1,11 @@
+//! Shallowly-typed client for the Manifold Markets API.
+//!
+//! Based on the docs at [https://docs.manifold.markets/api][docs]. Tested, but not thorougly.
+//!
+//! [docs]: https://docs.manifold.markets/api
+//!
+//! See [`ManifoldClient`](ManifoldClient) for usage.
+
 #![feature(iterator_try_collect)]
 
 mod client;
