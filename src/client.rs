@@ -16,8 +16,8 @@ pub enum ManifoldAuthorization {
 impl Into<Option<HeaderValue>> for ManifoldAuthorization {
     fn into(self) -> Option<HeaderValue> {
         let st = match self {
-            ManifoldAuthorization::ApiKey(key) => format!("Key {}", key),
-            ManifoldAuthorization::JWT(token) => format!("Bearer {}", token),
+            ManifoldAuthorization::ApiKey(key) => format!("Key {key}"),
+            ManifoldAuthorization::JWT(token) => format!("Bearer {token}"),
             ManifoldAuthorization::NoAuthorization => return Option::None,
         };
 
@@ -57,7 +57,7 @@ impl ManifoldClient {
 
         Ok(ManifoldClient {
             // auth,
-            base: base.trim_end_matches("/").to_owned(),
+            base: base.trim_end_matches('/').to_owned(),
             http: reqwest::Client::builder()
                 .user_agent("manifold-markets.rs/0.1.0")
                 .default_headers(headers)
@@ -66,11 +66,11 @@ impl ManifoldClient {
     }
 
     pub fn http_get(&self, path: &str) -> reqwest::RequestBuilder {
-        self.http.get(&format!("{}{}", self.base, path))
+        self.http.get(format!("{}{}", self.base, path))
     }
 
     pub fn http_post(&self, path: &str) -> reqwest::RequestBuilder {
-        self.http.post(&format!("{}{}", self.base, path))
+        self.http.post(format!("{}{}", self.base, path))
     }
 
     /// `GET /v0/user/[username]`
@@ -79,7 +79,7 @@ impl ManifoldClient {
     /// Requires no authorization.
     pub async fn get_user(&self, username: &str) -> Result<User> {
         Ok(self
-            .http_get(&format!("/user/{}", username))
+            .http_get(&format!("/user/{username}"))
             .send()
             .await?
             .error_for_status()?
@@ -94,7 +94,7 @@ impl ManifoldClient {
     /// Requires no authorization.
     pub async fn get_user_by_id(&self, id: &str) -> Result<User> {
         Ok(self
-            .http_get(&format!("/user/by-id/{}", id))
+            .http_get(&format!("/user/by-id/{id}"))
             .send()
             .await?
             .error_for_status()?
@@ -141,7 +141,7 @@ impl ManifoldClient {
     /// Requires no authorization. Note: group is singular in the URL.
     pub async fn get_group(&self, slug: &str) -> Result<Group> {
         Ok(self
-            .http_get(&format!("/group/{}", slug))
+            .http_get(&format!("/group/{slug}"))
             .send()
             .await?
             .error_for_status()?
@@ -156,7 +156,7 @@ impl ManifoldClient {
     /// Requires no authorization. Note: group is singular in the URL.
     pub async fn get_group_by_id(&self, id: &str) -> Result<Group> {
         Ok(self
-            .http_get(&format!("/group/by-id/{}", id))
+            .http_get(&format!("/group/by-id/{id}"))
             .send()
             .await?
             .error_for_status()?
@@ -171,7 +171,7 @@ impl ManifoldClient {
     /// Requires no authorization. Note: group is singular in the URL.
     pub async fn get_group_markets(&self, id: &str) -> Result<Vec<LiteMarket>> {
         Ok(self
-            .http_get(&format!("/group/by-id/{}/markets", id))
+            .http_get(&format!("/group/by-id/{id}/markets"))
             .send()
             .await?
             .error_for_status()?
@@ -214,7 +214,7 @@ impl ManifoldClient {
     /// Requires no authorization.
     pub async fn get_market(&self, market_id: &str) -> Result<FullMarket> {
         Ok(self
-            .http_get(&format!("/market/{}", market_id))
+            .http_get(&format!("/market/{market_id}"))
             .send()
             .await?
             .error_for_status()?
@@ -229,7 +229,7 @@ impl ManifoldClient {
     /// Requires no authorization.
     pub async fn get_market_by_slug(&self, market_slug: &str) -> Result<FullMarket> {
         Ok(self
-            .http_get(&format!("/slug/{}", market_slug))
+            .http_get(&format!("/slug/{market_slug}"))
             .send()
             .await?
             .error_for_status()?
@@ -329,7 +329,7 @@ impl ManifoldClient {
     /// Cancel the limit order of a bet with the specified id. If the bet was unfilled, it will be cancelled so that no other bets will match with it. This action is irreversible.
     pub async fn post_bet_cancel(&self, bet_id: &str) -> Result<Value> {
         let response = self
-            .http_post(&format!("/bet/{}/cancel", bet_id))
+            .http_post(&format!("/bet/{bet_id}/cancel"))
             .send()
             .await?
             .error_for_status()?;
@@ -378,7 +378,7 @@ impl ManifoldClient {
     /// amount: Required. The amount of liquidity to add, in M$.
     pub async fn post_market_add_liquidity(&self, market_id: &str, amount: u64) -> Result<Value> {
         let response = self
-            .http_post(&format!("/market/{}/add-liquidity", market_id))
+            .http_post(&format!("/market/{market_id}/add-liquidity"))
             .json(&json!({ "amount": amount }))
             .send()
             .await?
@@ -404,7 +404,7 @@ impl ManifoldClient {
         }
 
         let response = self
-            .http_post(&format!("/market/{}/close", market_id))
+            .http_post(&format!("/market/{market_id}/close"))
             .json(&body)
             .send()
             .await?
@@ -434,7 +434,7 @@ impl ManifoldClient {
     /// Otherwise: (value - min) / (max - min)
     pub async fn post_market_resolve(&self, market_id: &str, value: &Value) -> Result<Value> {
         let response = self
-            .http_post(&format!("/market/{}/resolve", market_id))
+            .http_post(&format!("/market/{market_id}/resolve"))
             .json(&value)
             .send()
             .await?
@@ -471,7 +471,7 @@ impl ManifoldClient {
         }
 
         let response = self
-            .http_post(&format!("/market/{}/sell", market_id))
+            .http_post(&format!("/market/{market_id}/sell"))
             .json(&body)
             .send()
             .await?
@@ -511,9 +511,9 @@ impl ManifoldClient {
     ) -> Result<Value> {
         let mut url = "/comments".to_owned();
         if let Some(contract_id) = contract_id {
-            url.push_str(&format!("?contractId={}", contract_id));
+            url.push_str(&format!("?contractId={contract_id}"));
         } else if let Some(contract_slug) = contract_slug {
-            url.push_str(&format!("?contractSlug={}", contract_slug));
+            url.push_str(&format!("?contractSlug={contract_slug}"));
         }
 
         let response = self.http_get(&url).send().await?.error_for_status()?;

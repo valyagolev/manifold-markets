@@ -1,13 +1,9 @@
-use std::{
-    marker::PhantomData,
-    pin::Pin,
-    task::{Context, Poll},
-};
+
 
 use futures_util::{stream, Stream, StreamExt, TryStreamExt};
 
 use crate::error::{ManifoldError, Result};
-use reqwest::Error;
+
 use serde::de::DeserializeOwned;
 use serde_json::Value;
 
@@ -64,7 +60,7 @@ impl ManifoldClient {
                     .to_owned();
 
                 let result = result
-                    .into_iter()
+                    .iter()
                     .map(|v| serde_json::from_value(v.clone()))
                     .try_collect::<Vec<T>>()?;
 

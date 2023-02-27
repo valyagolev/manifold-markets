@@ -46,12 +46,10 @@ mod tests {
         {
             println!("testing yes/no");
             let yes_no = r
-                .iter()
-                .filter(|m| m.outcome_type() == types::OutcomeType::Binary)
-                .next()
+                .iter().find(|m| m.outcome_type() == types::OutcomeType::Binary)
                 .unwrap();
 
-            println!("will bet on {:#?}", yes_no);
+            println!("will bet on {yes_no:#?}");
 
             let pool = yes_no.pool();
 
@@ -60,24 +58,22 @@ mod tests {
                 .max_by(|a, b| a.1.partial_cmp(&b.1).unwrap())
                 .unwrap();
 
-            println!("will bet on {:#?}", winning);
+            println!("will bet on {winning:#?}");
 
             let bet = manifold
                 .post_bet(1, yes_no.id(), winning.0.clone(), None)
                 .await?;
 
-            println!("bet: {:#?}", bet);
+            println!("bet: {bet:#?}");
         }
         {
             println!("now for a FreeResponse");
 
             let free_response = r
-                .iter()
-                .filter(|m| m.outcome_type() == types::OutcomeType::FreeResponse)
-                .next()
+                .iter().find(|m| m.outcome_type() == types::OutcomeType::FreeResponse)
                 .unwrap();
 
-            println!("will bet on {:#?}", free_response);
+            println!("will bet on {free_response:#?}");
 
             let pool = free_response.pool();
             let winning = pool
@@ -85,24 +81,22 @@ mod tests {
                 .max_by(|a, b| a.1.partial_cmp(&b.1).unwrap())
                 .unwrap();
 
-            println!("will bet on {:#?}", winning);
+            println!("will bet on {winning:#?}");
 
             let bet = manifold
                 .post_bet(1, free_response.id(), winning.0.clone(), None)
                 .await?;
 
-            println!("bet: {:#?}", bet);
+            println!("bet: {bet:#?}");
         }
         {
             println!("now for a MultipleChoice");
 
             let multiple_choice = r
-                .iter()
-                .filter(|m| m.outcome_type() == types::OutcomeType::MultipleChoice)
-                .next()
+                .iter().find(|m| m.outcome_type() == types::OutcomeType::MultipleChoice)
                 .unwrap();
 
-            println!("will bet on {:#?}", multiple_choice);
+            println!("will bet on {multiple_choice:#?}");
 
             let pool = multiple_choice.pool();
             let winning = pool
@@ -110,24 +104,22 @@ mod tests {
                 .max_by(|a, b| a.1.partial_cmp(&b.1).unwrap())
                 .unwrap();
 
-            println!("will bet on {:#?}", winning);
+            println!("will bet on {winning:#?}");
 
             let bet = manifold
                 .post_bet(1, multiple_choice.id(), winning.0.clone(), None)
                 .await?;
 
-            println!("bet: {:#?}", bet);
+            println!("bet: {bet:#?}");
         }
         {
             println!("now for a PseudoNumeric");
 
             let pseudo_numeric = r
-                .iter()
-                .filter(|m| m.outcome_type() == types::OutcomeType::PseudoNumeric)
-                .next()
+                .iter().find(|m| m.outcome_type() == types::OutcomeType::PseudoNumeric)
                 .unwrap();
 
-            println!("will bet on {:#?}", pseudo_numeric);
+            println!("will bet on {pseudo_numeric:#?}");
 
             let pool = pseudo_numeric.pool();
             let winning = pool
@@ -135,18 +127,18 @@ mod tests {
                 .max_by(|a, b| a.1.partial_cmp(&b.1).unwrap())
                 .unwrap();
 
-            println!("will bet on {:#?}", winning);
+            println!("will bet on {winning:#?}");
 
             let bet = manifold
                 .post_bet(1, pseudo_numeric.id(), winning.0.clone(), None)
                 .await?;
 
-            println!("bet: {:#?}", bet);
+            println!("bet: {bet:#?}");
         }
 
         let me = manifold.get_me().await?;
 
-        println!("me: {:#?}", me);
+        println!("me: {me:#?}");
 
         println!("test streaming my bets...");
         let bets = manifold.stream_bets(Some(me.id()), None, None, None);
