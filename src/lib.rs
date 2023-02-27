@@ -1,4 +1,4 @@
-//! Shallowly-typed client for the Manifold Markets API.
+//! Unofficial, shallowly-typed client for the Manifold Markets API.
 //!
 //! Based on the docs at [https://docs.manifold.markets/api][docs]. Tested, but not thorougly.
 //!
