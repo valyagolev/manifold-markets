@@ -4,7 +4,7 @@ use serde_json::{json, Value};
 use crate::error::Result;
 use crate::types::*;
 
-const DEFAULT_BASE: &str = "https://manifold.markets/api/v0";
+const DEFAULT_BASE: &str = "https://api.manifold.markets/v0";
 
 #[derive(Clone, Debug)]
 pub enum ManifoldAuthorization {
